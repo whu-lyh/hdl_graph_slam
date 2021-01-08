@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: BSD-2-Clause
+
 #ifndef ROS_UTILS_HPP
 #define ROS_UTILS_HPP
 
@@ -5,6 +7,7 @@
 
 #include <ros/ros.h>
 #include <nav_msgs/Odometry.h>
+#include <geometry_msgs/Pose.h>
 #include <geometry_msgs/TransformStamped.h>
 
 namespace hdl_graph_slam {
@@ -39,6 +42,13 @@ static geometry_msgs::TransformStamped matrix2transform(const ros::Time& stamp, 
   return odom_trans;
 }
 
+static Eigen::Isometry3d pose2isometry(const geometry_msgs::Pose& pose) {
+  Eigen::Isometry3d mat = Eigen::Isometry3d::Identity();
+  mat.translation() = Eigen::Vector3d(pose.position.x, pose.position.y, pose.position.z);
+  mat.linear() = Eigen::Quaterniond(pose.orientation.w, pose.orientation.x, pose.orientation.y, pose.orientation.z).toRotationMatrix();
+  return mat;
+}
+
 static Eigen::Isometry3d odom2isometry(const nav_msgs::OdometryConstPtr& odom_msg) {
   const auto& orientation = odom_msg->pose.pose.orientation;
   const auto& position = odom_msg->pose.pose.position;
@@ -55,6 +65,6 @@ static Eigen::Isometry3d odom2isometry(const nav_msgs::OdometryConstPtr& odom_ms
   return isometry;
 }
 
-}
+}  // namespace hdl_graph_slam
 
-#endif // ROS_UTILS_HPP
+#endif  // ROS_UTILS_HPP

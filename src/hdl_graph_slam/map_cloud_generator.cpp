@@ -1,15 +1,14 @@
+// SPDX-License-Identifier: BSD-2-Clause
+
 #include <hdl_graph_slam/map_cloud_generator.hpp>
 
 #include <pcl/octree/octree_search.h>
 
 namespace hdl_graph_slam {
 
-MapCloudGenerator::MapCloudGenerator() {
-}
+MapCloudGenerator::MapCloudGenerator() {}
 
-MapCloudGenerator::~MapCloudGenerator() {
-
-}
+MapCloudGenerator::~MapCloudGenerator() {}
 
 pcl::PointCloud<MapCloudGenerator::PointT>::Ptr MapCloudGenerator::generate(const std::vector<KeyFrameSnapshot::Ptr>& keyframes, double resolution) const {
   if(keyframes.empty()) {
@@ -34,6 +33,9 @@ pcl::PointCloud<MapCloudGenerator::PointT>::Ptr MapCloudGenerator::generate(cons
   cloud->height = 1;
   cloud->is_dense = false;
 
+  if (resolution <=0.0)
+    return cloud; // To get unfiltered point cloud with intensity
+
   pcl::octree::OctreePointCloud<PointT> octree(resolution);
   octree.setInputCloud(cloud);
   octree.addPointsFromInputCloud();
@@ -48,4 +50,4 @@ pcl::PointCloud<MapCloudGenerator::PointT>::Ptr MapCloudGenerator::generate(cons
   return filtered;
 }
 
-}
+}  // namespace hdl_graph_slam

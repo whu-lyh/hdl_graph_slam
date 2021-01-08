@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: BSD-2-Clause
+
 #ifndef KEYFRAME_UPDATER_HPP
 #define KEYFRAME_UPDATER_HPP
 
@@ -17,10 +19,7 @@ public:
    * @brief constructor
    * @param pnh
    */
-  KeyframeUpdater(ros::NodeHandle& pnh)
-    : is_first(true),
-      prev_keypose(Eigen::Isometry3d::Identity())
-  {
+  KeyframeUpdater(ros::NodeHandle& pnh) : is_first(true), prev_keypose(Eigen::Isometry3d::Identity()) {
     keyframe_delta_trans = pnh.param<double>("keyframe_delta_trans", 2.0);
     keyframe_delta_angle = pnh.param<double>("keyframe_delta_angle", 2.0);
 
@@ -43,7 +42,7 @@ public:
     // calculate the delta transformation from the previous keyframe
     Eigen::Isometry3d delta = prev_keypose.inverse() * pose;
     double dx = delta.translation().norm();
-    double da = std::acos(Eigen::Quaterniond(delta.linear()).w());
+    double da = Eigen::AngleAxisd(delta.linear()).angle();
 
     // too close to the previous frame
     if(dx < keyframe_delta_trans && da < keyframe_delta_angle) {
@@ -65,14 +64,14 @@ public:
 
 private:
   // parameters
-  double keyframe_delta_trans;      //
-  double keyframe_delta_angle;      //
+  double keyframe_delta_trans;  //
+  double keyframe_delta_angle;  //
 
   bool is_first;
   double accum_distance;
   Eigen::Isometry3d prev_keypose;
 };
 
-}
+}  // namespace hdl_graph_slam
 
-#endif // KEYFRAME_UPDATOR_HPP
+#endif  // KEYFRAME_UPDATOR_HPP
